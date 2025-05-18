@@ -22,8 +22,8 @@ main {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
+  height: 100dvh;
+  width: 100dvw;
   background-image: url('@/assets/background/0.jpg');
   background-size: cover;
   background-position: center;
