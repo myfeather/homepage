@@ -24,7 +24,7 @@ main {
   align-items: center;
   height: 100dvh;
   width: 100dvw;
-  background-image: url('@/assets/background/0.jpg');
+  background-image: url('/background/0.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

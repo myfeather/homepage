@@ -6,9 +6,8 @@ import { RouterLink, RouterView } from 'vue-router'
   <div class="wrapper">
     <RouterLink to="/"><h1>一片羽</h1></RouterLink>
     <nav>
-      <!-- TODO 此处预留下载与文档目录 -->
-      <RouterLink to="/download" hidden>下载</RouterLink>
-      <a href="http://docs.afeather.cn" hidden>文档</a>
+      <RouterLink to="/download">下载</RouterLink>
+      <a href="http://docs.afeather.cn">文档</a>
     </nav>
   </div>
 </template>

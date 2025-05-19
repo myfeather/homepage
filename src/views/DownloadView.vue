@@ -49,7 +49,6 @@ const download = (platform: string) => {
   height: 100%;
   width: 100%;
   padding: 0 2em;
-  background-color: rgba(255, 255, 255, 0.05);
 }
 
 h2 {
