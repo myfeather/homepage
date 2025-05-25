@@ -3,7 +3,6 @@
     <div class="download-container">
       <h2>下载</h2>
       <div class="version-selector">
-        <!-- <p>当前版本: v0.0.1</p> -->
         <div class="platforms">
           <Button style="cursor: not-allowed;">暂无可用下载</Button>
           <Button @click="download('windows')" hidden>Windows</Button>
@@ -14,7 +13,7 @@
       <div class="changelog">
         <h3>更新日志</h3>
         <ul>
-          <li>v0 软件尚未发布</li>
+          <li>v0 无可用下载</li>
         </ul>
       </div>
     </div>
@@ -37,7 +36,7 @@ const download = (platform: string) => {
   justify-content: flex-start;
   align-items: center;
   height: 100%;
-  width: 100dvw;
+  width: 100%;
 }
 
 .download-container {

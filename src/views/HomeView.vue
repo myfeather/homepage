@@ -17,7 +17,7 @@ import Sentence from "@/components/Sentence.vue";
   justify-content: flex-start;
   align-items: center;
   height: 100%;
-  width: 100dvw;
+  width: 100%;
 }
 
 .sentence-container {
