@@ -7,7 +7,7 @@ import { RouterLink, RouterView } from 'vue-router';
 <template>
     <main>
       <header>
-        <Nav class="nav"/>
+        <Nav class="nav-container"/>
       </header>
       <RouterView/>
       <footer>
@@ -37,13 +37,11 @@ header, footer {
   user-select: none;
 }
 
-header {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(4px);
-}
 
-.nav {
+.nav-container {
   padding: .5em 2em;
+    background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
 }
 
 .footer {

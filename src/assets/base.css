@@ -1,0 +1,27 @@
+@import url('https://fonts.itedev.com/130-SS%20Zhui%20Guang%20Shou%20Xie%20Ti/index.css');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+::selection {
+  background-color: rgba(255, 158, 234, 0.5);
+  color: #fff;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+ins {
+  color: #000;
+  text-decoration: none;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}

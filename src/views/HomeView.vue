@@ -26,7 +26,6 @@ import Sentence from "@/components/Sentence.vue";
   align-items: center;
   height: 100%;
   width: 100%;
-  border: 0 2em;
   padding: 0 2em;
 }
 
