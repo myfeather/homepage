@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: Dying_lax_16c16g_SSD30g_80Mbps
+    runs-on: self-hosted
     permissions:
       contents: write
       pages: write
