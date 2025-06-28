@@ -6,7 +6,10 @@ on:
 
 jobs:
   deploy:
-    runs-on: ["public"]
+    runs-on:
+      - self-hosted  # 第一优先级：Linux 自托管运行器
+      - ubuntu-latest
+    timeout-minutes: 1
     permissions:
       contents: write
       pages: write
