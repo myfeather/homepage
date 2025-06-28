@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: public
+    runs-on: ["public"]
     permissions:
       contents: write
       pages: write
