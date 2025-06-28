@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: Dying_lax_16c16g_SSD30g_80Mbps
     permissions:
       contents: write
       pages: write
