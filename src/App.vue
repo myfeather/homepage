@@ -46,17 +46,54 @@ const resetPointer = () => {
   if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
 }
 
+const initGyroscope = async () => {
+  if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+    // iOS 13+ requires permission
+    try {
+      const permissionState = await (DeviceOrientationEvent as any).requestPermission()
+      if (permissionState === 'granted') {
+        window.addEventListener('deviceorientation', handleDeviceOrientation)
+        // Optional: Alert success for debugging, can be removed later
+        // alert('Gyroscope permission granted')
+      } else {
+        alert(`Gyroscope permission denied: ${permissionState}`)
+      }
+    } catch (error) {
+      alert(`Gyroscope permission error: ${error}`)
+    }
+  } else {
+    // Non-iOS 13+ devices
+    window.addEventListener('deviceorientation', handleDeviceOrientation)
+  }
+}
+
+const handleUserInteraction = () => {
+  initGyroscope()
+  window.removeEventListener('click', handleUserInteraction)
+  window.removeEventListener('touchstart', handleUserInteraction)
+}
+
 onMounted(() => {
   backgroundParallax.value?.render(0, 0)
   window.addEventListener('pointermove', handlePointerMove)
   window.addEventListener('blur', resetPointer)
-  window.addEventListener('deviceorientation', handleDeviceOrientation)
+  
+  // Try to init gyroscope immediately (for Android/older iOS)
+  if (typeof (DeviceOrientationEvent as any).requestPermission !== 'function') {
+    window.addEventListener('deviceorientation', handleDeviceOrientation)
+  } else {
+    // For iOS 13+, wait for user interaction
+    window.addEventListener('click', handleUserInteraction)
+    window.addEventListener('touchstart', handleUserInteraction)
+  }
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('pointermove', handlePointerMove)
   window.removeEventListener('blur', resetPointer)
   window.removeEventListener('deviceorientation', handleDeviceOrientation)
+  window.removeEventListener('click', handleUserInteraction)
+  window.removeEventListener('touchstart', handleUserInteraction)
   if (renderRaf) cancelAnimationFrame(renderRaf)
 })
 </script>
