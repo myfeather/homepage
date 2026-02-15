@@ -10,19 +10,30 @@ type ParallaxWindowRef = {
 
 const backgroundParallax = ref<ParallaxWindowRef | null>(null)
 let renderRaf = 0
-let pointerOffsetX = 0
-let pointerOffsetY = 0
+let targetX = 0
+let targetY = 0
+let currentX = 0
+let currentY = 0
 const showGyroscopeButton = ref(false)
 
-const renderBackground = () => {
-  renderRaf = 0
-  backgroundParallax.value?.render(pointerOffsetX, pointerOffsetY)
+const loop = () => {
+  // Lerp factor (0.1 for smooth, 0.05 for very smooth)
+  const factor = 0.1
+  const diffX = targetX - currentX
+  const diffY = targetY - currentY
+
+  if (Math.abs(diffX) > 0.001 || Math.abs(diffY) > 0.001) {
+    currentX += diffX * factor
+    currentY += diffY * factor
+    backgroundParallax.value?.render(currentX, currentY)
+  }
+
+  renderRaf = requestAnimationFrame(loop)
 }
 
 const handlePointerMove = (event: PointerEvent) => {
-  pointerOffsetX = (event.clientX / window.innerWidth - 0.5) * 2
-  pointerOffsetY = (event.clientY / window.innerHeight - 0.5) * 2
-  if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
+  targetX = (event.clientX / window.innerWidth - 0.5) * 2
+  targetY = (event.clientY / window.innerHeight - 0.5) * 2
 }
 
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
@@ -32,19 +43,16 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
 
   // Invert axes to correct movement direction
   // Gamma: Left/Right tilt (-90 to 90) -> Inverted
-  pointerOffsetX = Math.max(-1, Math.min(1, -gamma / 30))
+  targetX = Math.max(-1, Math.min(1, -gamma / 30))
 
   // Beta: Front/Back tilt (-180 to 180) -> Inverted
   // Map 0 to 90 -> -1 to 1 (Assuming holding phone at 45 degrees is "center")
-  pointerOffsetY = Math.max(-1, Math.min(1, -(beta - 45) / 30))
-
-  if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
+  targetY = Math.max(-1, Math.min(1, -(beta - 45) / 30))
 }
 
 const resetPointer = () => {
-  pointerOffsetX = 0
-  pointerOffsetY = 0
-  if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
+  targetX = 0
+  targetY = 0
 }
 
 const initGyroscope = async () => {
@@ -76,6 +84,7 @@ const handleUserInteraction = () => {
 
 onMounted(() => {
   backgroundParallax.value?.render(0, 0)
+  loop() // Start the animation loop
   window.addEventListener('pointermove', handlePointerMove)
   window.addEventListener('blur', resetPointer)
   
@@ -85,8 +94,6 @@ onMounted(() => {
   } else {
     // For iOS 13+, show button
     showGyroscopeButton.value = true
-    // Also keep click listener as backup/easier access? No, let's use the button explicitly
-    // window.addEventListener('click', handleUserInteraction)
   }
 })
 
