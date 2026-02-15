@@ -24,6 +24,22 @@ const handlePointerMove = (event: PointerEvent) => {
   if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
 }
 
+const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
+  const gamma = event.gamma
+  const beta = event.beta
+  if (gamma === null || beta === null) return
+
+  // Gamma: Left/Right tilt (-90 to 90)
+  // Map -45 to 45 -> -1 to 1
+  pointerOffsetX = Math.max(-1, Math.min(1, gamma / 45))
+
+  // Beta: Front/Back tilt (-180 to 180)
+  // Map 0 to 90 -> -1 to 1 (Assuming holding phone at 45 degrees is "center")
+  pointerOffsetY = Math.max(-1, Math.min(1, (beta - 45) / 45))
+
+  if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
+}
+
 const resetPointer = () => {
   pointerOffsetX = 0
   pointerOffsetY = 0
@@ -34,11 +50,13 @@ onMounted(() => {
   backgroundParallax.value?.render(0, 0)
   window.addEventListener('pointermove', handlePointerMove)
   window.addEventListener('blur', resetPointer)
+  window.addEventListener('deviceorientation', handleDeviceOrientation)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('pointermove', handlePointerMove)
   window.removeEventListener('blur', resetPointer)
+  window.removeEventListener('deviceorientation', handleDeviceOrientation)
   if (renderRaf) cancelAnimationFrame(renderRaf)
 })
 </script>
@@ -69,10 +87,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 main {
-  position: relative;
   display: flex;
-  height: 100dvh;
-  width: 100dvw;
+  min-height: 100vh;
+  width: 100%;
 }
 
 .background-window {
@@ -103,7 +120,7 @@ main {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  height: 100%;
+  min-height: 100vh;
   width: 100%;
 }
 

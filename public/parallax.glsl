@@ -16,7 +16,20 @@ const float dh=1./layers;
 varying vec2 v_uv;
 
 void main(){
-    vec2 uv_origin=vec2(v_uv.x,1.-v_uv.y);
+    float imageAspect = u_imageRes.x / u_imageRes.y;
+    float canvasAspect = u_resolution.x / u_resolution.y;
+    float aspectRatio = canvasAspect / imageAspect;
+    
+    vec2 scale = vec2(1.0);
+    if (aspectRatio < 1.0) {
+        scale.x = aspectRatio;
+    } else {
+        scale.y = 1.0 / aspectRatio;
+    }
+    
+    vec2 uv_corrected = (v_uv - 0.5) * scale + 0.5;
+    vec2 uv_origin = vec2(uv_corrected.x, 1.0 - uv_corrected.y);
+    
     vec2 aspect=vec2(u_resolution.x/u_resolution.y,1.);
     vec2 total_offset=aspect*u_offset*u_sensitivity;
     
