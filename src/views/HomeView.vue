@@ -5,7 +5,7 @@ import Sentence from "@/components/Sentence.vue";
 <template>
     <div class="home-view">
       <div class="sentence-container">
-        <Sentence provider="afeather"/>
+        <Sentence provider="hitokoto"/>
       </div>
     </div>
 </template>
