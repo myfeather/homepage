@@ -1,36 +1,110 @@
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import Nav from '@/components/Nav.vue'
+import ParallaxWindow from '@/components/ParallaxWindow.vue'
 import Footer from './components/Footer.vue'
-import { RouterLink, RouterView } from 'vue-router'
+
+type ParallaxWindowRef = {
+  render: (offsetX?: number, offsetY?: number) => void
+}
+
+const backgroundParallax = ref<ParallaxWindowRef | null>(null)
+let renderRaf = 0
+let pointerOffsetX = 0
+let pointerOffsetY = 0
+
+const renderBackground = () => {
+  renderRaf = 0
+  backgroundParallax.value?.render(pointerOffsetX, pointerOffsetY)
+}
+
+const handlePointerMove = (event: PointerEvent) => {
+  pointerOffsetX = (event.clientX / window.innerWidth - 0.5) * 2
+  pointerOffsetY = (event.clientY / window.innerHeight - 0.5) * 2
+  if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
+}
+
+const resetPointer = () => {
+  pointerOffsetX = 0
+  pointerOffsetY = 0
+  if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
+}
+
+onMounted(() => {
+  backgroundParallax.value?.render(0, 0)
+  window.addEventListener('pointermove', handlePointerMove)
+  window.addEventListener('blur', resetPointer)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pointermove', handlePointerMove)
+  window.removeEventListener('blur', resetPointer)
+  if (renderRaf) cancelAnimationFrame(renderRaf)
+})
 </script>
 
 <template>
   <main>
-    <header>
-      <Nav class="nav-container" />
-    </header>
-    <transition name="scale" mode="out-in">
-      <router-view />
-    </transition>
-    <footer>
-      <Footer now-year="2025" bg-provider="pixiv" class="footer" />
-    </footer>
+    <ParallaxWindow
+      ref="backgroundParallax"
+      class="background-window"
+      src="/background/1.jpg"
+      :view-height="0.2"
+      :sensitivity-x="0.005"
+      :sensitivity-y="0.005"
+    />
+    <div class="app-shell">
+      <header>
+        <Nav class="nav-container" />
+      </header>
+      <transition name="scale" mode="out-in">
+        <router-view />
+      </transition>
+      <footer>
+        <Footer now-year="2025" bg-provider="pixiv" class="footer" />
+      </footer>
+    </div>
   </main>
 </template>
 
 <style scoped>
 main {
+  position: relative;
+  display: flex;
+  height: 100dvh;
+  width: 100dvw;
+}
+
+.background-window {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.background-window :deep(.image-like) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.background-window :deep(.image-like-content) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto !important;
+  object-fit: cover;
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  height: 100dvh;
-  width: 100dvw;
-  background-image: url('/background/1.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  height: 100%;
+  width: 100%;
 }
 
 header,
