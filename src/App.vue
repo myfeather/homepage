@@ -29,13 +29,13 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   const beta = event.beta
   if (gamma === null || beta === null) return
 
-  // Gamma: Left/Right tilt (-90 to 90)
-  // Map -45 to 45 -> -1 to 1
-  pointerOffsetX = Math.max(-1, Math.min(1, gamma / 45))
+  // Invert axes to correct movement direction
+  // Gamma: Left/Right tilt (-90 to 90) -> Inverted
+  pointerOffsetX = Math.max(-1, Math.min(1, -gamma / 45))
 
-  // Beta: Front/Back tilt (-180 to 180)
+  // Beta: Front/Back tilt (-180 to 180) -> Inverted
   // Map 0 to 90 -> -1 to 1 (Assuming holding phone at 45 degrees is "center")
-  pointerOffsetY = Math.max(-1, Math.min(1, (beta - 45) / 45))
+  pointerOffsetY = Math.max(-1, Math.min(1, -(beta - 45) / 45))
 
   if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
 }
@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
 <style scoped>
 main {
   display: flex;
-  min-height: 100vh;
+  min-height: 100%;
   width: 100%;
 }
 
@@ -120,7 +120,7 @@ main {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100%;
   width: 100%;
 }
 
