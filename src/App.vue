@@ -12,6 +12,7 @@ const backgroundParallax = ref<ParallaxWindowRef | null>(null)
 let renderRaf = 0
 let pointerOffsetX = 0
 let pointerOffsetY = 0
+const showGyroscopeButton = ref(false)
 
 const renderBackground = () => {
   renderRaf = 0
@@ -31,11 +32,11 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
 
   // Invert axes to correct movement direction
   // Gamma: Left/Right tilt (-90 to 90) -> Inverted
-  pointerOffsetX = Math.max(-1, Math.min(1, -gamma / 45))
+  pointerOffsetX = Math.max(-1, Math.min(1, -gamma / 30))
 
   // Beta: Front/Back tilt (-180 to 180) -> Inverted
   // Map 0 to 90 -> -1 to 1 (Assuming holding phone at 45 degrees is "center")
-  pointerOffsetY = Math.max(-1, Math.min(1, -(beta - 45) / 45))
+  pointerOffsetY = Math.max(-1, Math.min(1, -(beta - 45) / 30))
 
   if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
 }
@@ -53,6 +54,7 @@ const initGyroscope = async () => {
       const permissionState = await (DeviceOrientationEvent as any).requestPermission()
       if (permissionState === 'granted') {
         window.addEventListener('deviceorientation', handleDeviceOrientation)
+        showGyroscopeButton.value = false
         // Optional: Alert success for debugging, can be removed later
         // alert('Gyroscope permission granted')
       } else {
@@ -69,7 +71,7 @@ const initGyroscope = async () => {
 
 const handleUserInteraction = () => {
   initGyroscope()
-  window.removeEventListener('click', handleUserInteraction)
+  // window.removeEventListener('click', handleUserInteraction)
 }
 
 onMounted(() => {
@@ -81,9 +83,10 @@ onMounted(() => {
   if (typeof (DeviceOrientationEvent as any).requestPermission !== 'function') {
     window.addEventListener('deviceorientation', handleDeviceOrientation)
   } else {
-    // For iOS 13+, wait for user interaction
-    // Only use 'click' as 'touchstart' may not be considered a valid user gesture for permissions
-    window.addEventListener('click', handleUserInteraction)
+    // For iOS 13+, show button
+    showGyroscopeButton.value = true
+    // Also keep click listener as backup/easier access? No, let's use the button explicitly
+    // window.addEventListener('click', handleUserInteraction)
   }
 })
 
@@ -91,7 +94,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointermove', handlePointerMove)
   window.removeEventListener('blur', resetPointer)
   window.removeEventListener('deviceorientation', handleDeviceOrientation)
-  window.removeEventListener('click', handleUserInteraction)
+  // window.removeEventListener('click', handleUserInteraction)
   if (renderRaf) cancelAnimationFrame(renderRaf)
 })
 </script>
@@ -103,9 +106,12 @@ onBeforeUnmount(() => {
       class="background-window"
       src="/background/1.jpg"
       :view-height="0.2"
-      :sensitivity-x="0.005"
-      :sensitivity-y="0.005"
+      :sensitivity-x="0.02"
+      :sensitivity-y="0.02"
     />
+    <div v-if="showGyroscopeButton" class="gyro-button-container">
+      <button class="gyro-button" @click="handleUserInteraction">Enable Motion</button>
+    </div>
     <div class="app-shell">
       <header>
         <Nav class="nav-container" />
@@ -129,7 +135,7 @@ main {
 
 .background-window {
   position: fixed;
-  inset: 0;
+  inset: -50px;
   z-index: 0;
   pointer-events: none;
 }
@@ -157,6 +163,11 @@ main {
   align-items: center;
   min-height: 100%;
   width: 100%;
+  /* iOS Safe Area Support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 header,
@@ -191,4 +202,29 @@ footer {
   opacity: 0;
 }
 
+.gyro-button-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+}
+
+.gyro-button {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.gyro-button:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.3);
+}
 </style>
