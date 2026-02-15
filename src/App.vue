@@ -12,16 +12,34 @@ const backgroundParallax = ref<ParallaxWindowRef | null>(null)
 let renderRaf = 0
 let pointerOffsetX = 0
 let pointerOffsetY = 0
+let targetOffsetX = 0
+let targetOffsetY = 0
 const showGyroscopeButton = ref(false)
 
+const lerp = (start: number, end: number, factor: number) => {
+  return start + (end - start) * factor
+}
+
 const renderBackground = () => {
-  renderRaf = 0
+  // Smoothly interpolate current offset towards target offset
+  // Factor 0.1 gives a smooth, weighted movement
+  pointerOffsetX = lerp(pointerOffsetX, targetOffsetX, 0.1)
+  pointerOffsetY = lerp(pointerOffsetY, targetOffsetY, 0.1)
+
   backgroundParallax.value?.render(pointerOffsetX, pointerOffsetY)
+  
+  // Continue animation loop if there's still significant difference or to keep updating
+  // For gyroscope, we want continuous updates, but we can optimize by checking diff
+  if (Math.abs(targetOffsetX - pointerOffsetX) > 0.001 || Math.abs(targetOffsetY - pointerOffsetY) > 0.001) {
+      renderRaf = requestAnimationFrame(renderBackground)
+  } else {
+      renderRaf = 0
+  }
 }
 
 const handlePointerMove = (event: PointerEvent) => {
-  pointerOffsetX = (event.clientX / window.innerWidth - 0.5) * 2
-  pointerOffsetY = (event.clientY / window.innerHeight - 0.5) * 2
+  targetOffsetX = (event.clientX / window.innerWidth - 0.5) * 2
+  targetOffsetY = (event.clientY / window.innerHeight - 0.5) * 2
   if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
 }
 
@@ -32,18 +50,18 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
 
   // Invert axes to correct movement direction
   // Gamma: Left/Right tilt (-90 to 90) -> Inverted
-  pointerOffsetX = Math.max(-1, Math.min(1, -gamma / 30))
+  targetOffsetX = Math.max(-1, Math.min(1, -gamma / 30))
 
   // Beta: Front/Back tilt (-180 to 180) -> Inverted
   // Map 0 to 90 -> -1 to 1 (Assuming holding phone at 45 degrees is "center")
-  pointerOffsetY = Math.max(-1, Math.min(1, -(beta - 45) / 30))
+  targetOffsetY = Math.max(-1, Math.min(1, -(beta - 45) / 30))
 
   if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
 }
 
 const resetPointer = () => {
-  pointerOffsetX = 0
-  pointerOffsetY = 0
+  targetOffsetX = 0
+  targetOffsetY = 0
   if (!renderRaf) renderRaf = requestAnimationFrame(renderBackground)
 }
 
@@ -135,7 +153,6 @@ main {
 
 .background-window {
   position: fixed;
-  inset: -50px;
   z-index: 0;
   pointer-events: none;
 }
