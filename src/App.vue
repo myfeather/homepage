@@ -70,7 +70,6 @@ const initGyroscope = async () => {
 const handleUserInteraction = () => {
   initGyroscope()
   window.removeEventListener('click', handleUserInteraction)
-  window.removeEventListener('touchstart', handleUserInteraction)
 }
 
 onMounted(() => {
@@ -83,8 +82,8 @@ onMounted(() => {
     window.addEventListener('deviceorientation', handleDeviceOrientation)
   } else {
     // For iOS 13+, wait for user interaction
+    // Only use 'click' as 'touchstart' may not be considered a valid user gesture for permissions
     window.addEventListener('click', handleUserInteraction)
-    window.addEventListener('touchstart', handleUserInteraction)
   }
 })
 
@@ -93,7 +92,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('blur', resetPointer)
   window.removeEventListener('deviceorientation', handleDeviceOrientation)
   window.removeEventListener('click', handleUserInteraction)
-  window.removeEventListener('touchstart', handleUserInteraction)
   if (renderRaf) cancelAnimationFrame(renderRaf)
 })
 </script>
