@@ -153,8 +153,16 @@ main {
 
 .background-window {
   position: fixed;
+  inset: -50px;
   z-index: 0;
   pointer-events: none;
+}
+
+.background-window :deep(canvas) {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: unset !important;
 }
 
 .background-window :deep(.image-like) {
